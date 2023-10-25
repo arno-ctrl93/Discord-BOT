@@ -11,6 +11,11 @@ bot = commands.Bot(
     intents = intents # Set up basic permissions
 )
 
+flood_active = False
+flood_users = {}
+
+flood_message_limit = 5
+flood_time_limit = 10
 
 bot.author_id = 199469240082890761  # Change to your discord id
 
@@ -27,6 +32,31 @@ async def on_message(message):
     if (message.content == "Salut tout le monde"):
         response = f"Salut tout seul, {message.author.mention}!"
         await message.channel.send(response)
+        
+    if flood_active:
+        author_id = message.author.id
+        current_time = message.created_at
+        print(current_time)
+        print(author_id)
+
+        if author_id in flood_users:
+            last_messages = flood_users[author_id]
+            print(last_messages)
+            last_messages_in_time_limit = [message for message in last_messages if (current_time - message).total_seconds() < flood_time_limit]
+            print(last_messages_in_time_limit)
+            print(len(last_messages_in_time_limit))
+
+            if len(last_messages_in_time_limit) > flood_message_limit:
+                await message.channel.send(f"{message.author.mention}, stop spam messages.")
+                print("send message")
+
+        if author_id not in flood_users:
+            flood_users[author_id] = []
+
+        flood_users[author_id].append(current_time)
+
+        await bot.process_commands(message)
+
     await bot.process_commands(message)
 
 @bot.command()
@@ -93,5 +123,18 @@ async def ban(ctx, member_name: str, ban_reason: str = None):
     await ctx.send(f"Banned {member.mention} for: {ban_reason}")
     
 
-token = "MTE2NjgxMTQ2MDI5NTQ2MzAxNA.GW9zBB.r57i-Hj0CmQuObd8mc0n--ju_1G_t5X4lRAtKQ"
+
+@bot.command()
+async def flood(ctx):
+    global flood_active
+    flood_active = not flood_active
+    if flood_active:
+        await ctx.send("Flood active")
+    else:
+        await ctx.send("Flood inactive")
+
+
+
+
+token = "MTE2NjgxMTQ2MDI5NTQ2MzAxNA.GY5fgW.gxAGn1K-ovTkHnKMiF19n7fW7mMhRxf2OkRHSo"
 bot.run(token)  # Starts the bot
