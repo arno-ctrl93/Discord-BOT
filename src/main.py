@@ -136,5 +136,5 @@ async def flood(ctx):
 
 
 
-token = "MTE2NjgxMTQ2MDI5NTQ2MzAxNA.GY5fgW.gxAGn1K-ovTkHnKMiF19n7fW7mMhRxf2OkRHSo"
+token = ""
 bot.run(token)  # Starts the bot
